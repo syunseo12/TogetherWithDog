@@ -26,4 +26,11 @@ create policy "delete_own_profile" on public.profiles
   for delete to authenticated
   using ((select auth.uid()) = user_id);
 
+revoke all on table public.community_posts, public.feed_posts,
+  public.feed_comments, public.community_post_comments from public, anon, authenticated;
+grant select on table public.community_posts, public.feed_posts,
+  public.feed_comments, public.community_post_comments to anon, authenticated;
+grant insert, update, delete on table public.feed_posts to authenticated;
+grant insert on table public.feed_comments, public.community_post_comments to authenticated;
+
 commit;
