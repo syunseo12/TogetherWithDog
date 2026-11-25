@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error && error.code !== 'PGRST202') return { error: '닉네임 확인 서비스에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.' };
       if (!error && !data) return { error: '이 닉네임은 사용할 수 없어요. 다른 닉네임을 입력해 주세요.' };
     }
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -77,7 +77,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         data: { is_owner: isOwner ?? null, signup_nickname: candidate || null, referral_source: referralSource || null },
       },
     });
-    return { error: error?.message ?? null };
+    switch (error?.code) {
+      case 'email_address_invalid':
+        return { error: '이메일 주소를 다시 확인해 주세요.' };
+      case 'email_address_not_authorized':
+        return { error: '현재 메일 설정에서 이 주소로 인증 메일을 보낼 수 없어요. 가입이 완료되지 않았어요.' };
+      case 'over_email_send_rate_limit':
+      case 'over_request_rate_limit':
+        return { error: '인증 메일 발송 한도에 도달했어요. 잠시 후 다시 시도해 주세요.' };
+      case 'weak_password':
+        return { error: '더 긴 비밀번호를 입력해 주세요.' };
+    }
+    if (error) return { error: '가입을 완료하지 못했어요. ' + error.message };
+    return { error: data.user || data.session ? null : '가입 응답을 확인하지 못했어요. 다시 시도해 주세요.' };
   }
 
   async function signOut() {

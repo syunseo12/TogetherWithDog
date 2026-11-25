@@ -56,24 +56,28 @@ export default function RegisterPage() {
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim() || !password.trim()) return;
+    if (submitting || !email.trim() || !password.trim()) return;
     setSubmitting(true);
     setError(null);
-    const { error } = await signUp(email.trim(), password, isOwner, signupNick, referral);
-    if (error) {
-      setError(error);
-    } else {
-      setError(null);
+    setSignupNotice('');
+    try {
+      const result = await signUp(email.trim(), password, isOwner, signupNick, referral);
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
       setMode('login');
-      setEmail('');
       setPassword('');
       setIsOwner(null);
       setSignupNick('');
       setReferral('');
       setNickCheck(undefined);
-      setSignupNotice('가입 요청을 보냈어요. 이메일 인증이 필요한 경우 메일함을 확인해 주세요.');
+      setSignupNotice('이메일 인증이 필요하면 가입에 사용한 주소로 온 확인 메일을 열어 주세요. 이미 인증했다면 그 이메일로 로그인하세요.');
+    } catch {
+      setError('가입 서비스에 연결할 수 없어요. 연결을 확인하고 다시 시도해 주세요.');
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   }
 
   async function saveProfileNickname(event: React.FormEvent<HTMLFormElement>) {
@@ -218,7 +222,7 @@ export default function RegisterPage() {
               </div>
 
               {error && (
-                <div className="bg-rose-50 text-rose-600 text-sm rounded-xl p-3 border border-rose-100">{error}</div>
+                <div role="alert" className="bg-rose-50 text-rose-600 text-sm rounded-xl p-3 border border-rose-100">{error}</div>
               )}
 
               <button
@@ -337,7 +341,7 @@ export default function RegisterPage() {
               </fieldset>
 
               {error && (
-                <div className="bg-rose-50 text-rose-600 text-sm rounded-xl p-3 border border-rose-100">{error}</div>
+                <div role="alert" className="bg-rose-50 text-rose-600 text-sm rounded-xl p-3 border border-rose-100">{error}</div>
               )}
 
               <button
