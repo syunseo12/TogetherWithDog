@@ -69,7 +69,7 @@ export default function AdoptionListings({ guide }: { guide: ReactNode }) {
     }).finally(() => window.clearTimeout(timeout));
 
     const recent = saved.current.get(query.region);
-    if (recent && Date.now() - recent.at < 86400000 && recent.dogs.length) {
+    if (recent?.dogs.length) {
       setDogs(recent.dogs);
       setSnapshotAt(recent.at);
     } else {
@@ -77,7 +77,7 @@ export default function AdoptionListings({ guide }: { guide: ReactNode }) {
         .then((response) => response.ok ? response.json() : null)
         .then((snapshots: Record<string, { at: number; dogs: DogNotice[] }> | null) => {
           const snapshot = snapshots?.[query.region];
-          if (!mounted || !snapshot || saved.current.has(query.region) || Date.now() - snapshot.at > 86400000) return;
+          if (!mounted || !snapshot?.dogs.length || saved.current.has(query.region)) return;
           setDogs(snapshot.dogs);
           setSnapshotAt(snapshot.at);
         }).catch(() => {});
@@ -130,7 +130,11 @@ export default function AdoptionListings({ guide }: { guide: ReactNode }) {
       {snapshotAt && <p className="notice-status text-sm" role="status">
         {new Date(snapshotAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', dateStyle: 'medium', timeStyle: 'short' })} 확인한 공고
         {failed ? ' · 최신 조회에 실패했어요. ' : ' · 최신 공고를 확인 중이에요.'}
-        {failed && <button type="button" className="underline" onClick={() => lookup(query.region)}>다시 조회</button>}
+        {failed && <>
+          <button type="button" className="underline" onClick={() => lookup(query.region)}>다시 조회</button>
+          <span> · </span>
+          <a className="underline" href={source + '/animals'} target="_blank" rel="noreferrer">원본 공고 보기</a>
+        </>}
       </p>}
       {failed && !snapshotAt ? <div className="project-card notice-status" role="status">
         <p>공고를 불러오지 못했어요. 다시 조회하거나 원본 사이트에서 확인해 주세요.</p>
