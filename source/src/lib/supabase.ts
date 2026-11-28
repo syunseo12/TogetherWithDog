@@ -1,16 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-declare global {
-  interface Window {
-    togetherWithDogConfig?: { url: string; key: string };
-  }
-}
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || window.togetherWithDogConfig?.url;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || window.togetherWithDogConfig?.key;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Supabase URL and public client key are required.');
-}
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://cbvihyeqqkhcbrmhwatp.supabase.co";
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "sb_publishable_BYTsnkg3OzRcNNrkVy8lfQ_cWYGv034";
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);

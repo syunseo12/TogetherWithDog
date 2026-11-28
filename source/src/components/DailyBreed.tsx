@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import AdoptionListings from './AdoptionListings';
 import { paradeDogs } from '@/data/paradeDogs';
 
 const breedNotes = [
@@ -13,27 +11,9 @@ const breedNotes = [
   '달마시안은 흰 바탕에 점박이 무늬를 가진 견종이에요. 산책과 놀이 시간을 충분히 마련해 주세요.',
 ];
 
-const checklist = [
-  '가족 모두와 입양에 합의하고 돌봄 역할을 정했어요.',
-  '주거지에서 반려견을 키울 수 있고 혼자 있는 시간을 고려했어요.',
-  '사료·용품·예방 관리·진료에 들어갈 비용을 점검했어요.',
-  '산책·훈련 시간을 확보하고 외출이나 여행 때 돌봄 계획을 세웠어요.',
-];
-export default function AdoptionGuide() {
+export default function DailyBreed() {
   const seoulDay = Math.floor((Date.now() + 9 * 3600000) / 86400000);
   const breed = seoulDay % breedNotes.length;
-  const [checked, setChecked] = useState<number[]>(() => {
-    try {
-      const saved: unknown = JSON.parse(localStorage.getItem('dog-adoption-checklist') ?? '[]');
-      return Array.isArray(saved) ? saved.filter((value): value is number => Number.isInteger(value) && value >= 0 && value < checklist.length) : [];
-    } catch { return []; }
-  });
-
-  function toggle(index: number) {
-    const next = checked.includes(index) ? checked.filter((entry) => entry !== index) : [...checked, index];
-    setChecked(next);
-    try { localStorage.setItem('dog-adoption-checklist', JSON.stringify(next)); } catch { /* Checklist still works for this visit. */ }
-  }
 
   return (
     <div className="home-extras">
@@ -50,18 +30,6 @@ export default function AdoptionGuide() {
             : <a href="https://dog.ceo/dog-api/" target="_blank" rel="noreferrer">사진 Dog CEO</a>}</figcaption>
         </figure>
       </section>
-      <AdoptionListings guide={
-        <article id="adoption" className="project-card" aria-labelledby="adoption-title">
-          <h2 id="adoption-title">입양 준비 가이드</h2>
-          <p>평생 함께할 준비를 점검해 보세요.</p>
-          <div className="adoption-checks">
-            {checklist.map((label, index) => (
-              <label key={label}><input type="checkbox" checked={checked.includes(index)} onChange={() => toggle(index)} />{label}</label>
-            ))}
-          </div>
-          <p className="text-sm" aria-live="polite">{checked.length} / {checklist.length} 완료</p>
-        </article>
-      } />
     </div>
   );
 }

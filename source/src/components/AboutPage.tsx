@@ -1,18 +1,19 @@
 import { useState } from 'react';
 import { Pause, Play } from 'lucide-react';
-import AdoptionGuide from './AdoptionGuide';
+import DailyBreed from './DailyBreed';
 import ParadeDog from './ParadeDog';
 import HandwrittenTitle from './HandwrittenTitle';
 import { paradeDogs } from '@/data/paradeDogs';
 import useScrollReveal from '@/hooks/useScrollReveal';
 
 interface AboutPageProps {
-  onNavigate: (tab: 'care' | 'community' | 'register') => void;
+  onNavigate: (tab: 'care' | 'community' | 'adoption' | 'register') => void;
 }
 const chapters = [
   { label: '함께하개', desc: '반려견의 건강 정보를 알아보고, 견주들과 경험을 나누는 공간입니다.\n입양 준비부터 보호견 찾기까지 한곳에서 살펴보세요.', action: '입양 준비 시작하기', target: 'adoption', variant: 1 },
   { label: '돌봐주개', desc: '강아지 그림의 부위를 누르면 질병과 증상, 세척법, 행동 정보를 볼 수 있어요.\n목줄의 뼈다귀를 누르면 지역별 동물병원도 찾을 수 있습니다.', action: '건강 정보 살펴보기', target: 'care', variant: 0 },
   { label: '소통하개', desc: '강아지 사진과 반려생활 이야기를 올리고, 궁금한 점을 물어보세요.\n게시글과 댓글로 견주들의 경험을 나눌 수 있어요.', action: '커뮤니티 보기', target: 'community', variant: 3 },
+  { label: '입양하개', desc: '지역별 보호견 공고를 살펴보고, 가족과의 합의부터 데려온 첫 주까지 체크리스트로 준비해 보세요.\n보호센터에 연락하기 전에 물어볼 질문도 모아두었어요.', action: '입양하개 둘러보기', target: 'adoption', variant: 5 },
   { label: '등록하개', desc: '로그인하거나 새 계정을 만들 수 있어요.\n회원가입 후 닉네임을 설정해 커뮤니티에 참여하세요.', action: '로그인 · 회원가입', target: 'register', variant: 2 },
 ] as const;
 
@@ -30,7 +31,6 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
       .slice(0, 2).map(({ index }) => index)
   );
   const current = chapters[chapter];
-  const target = current.target;
   const storyReveal = useScrollReveal();
 
   return (
@@ -72,12 +72,12 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               }} className={chapter === index ? 'selected' : ''}><span>{item.label}</span></button>)}
             </div>
             <div className="story-panel" id="chapter-panel" role="tabpanel" aria-labelledby={`chapter-${chapter}`} tabIndex={0}>
-              <div className="story-copy" key={chapter}><h2>{current.label}</h2><p>{current.desc}</p>{current.target === 'adoption' ? <a className="story-cta" href="#adoption">{current.action}</a> : <button className="story-cta" onClick={() => { if (target !== 'adoption') onNavigate(target); }}>{current.action}</button>}</div>
+              <div className="story-copy" key={chapter}><h2>{current.label}</h2><p>{current.desc}</p><button className="story-cta" onClick={() => onNavigate(current.target)}>{current.action}</button></div>
               <div className="story-illustration"><ParadeDog variant={current.variant} /><div className="illustration-ground" /></div>
             </div>
           </div>
         </section>
-        <AdoptionGuide />
+        <DailyBreed />
       </div>
     </main>
   );

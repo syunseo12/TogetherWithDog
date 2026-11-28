@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { LogOut, PawPrint, UserCircle } from 'lucide-react';
+import AdoptionPage from '@/components/AdoptionPage';
 import AboutPage from '@/components/AboutPage';
 import CarePage from '@/components/CarePage';
 import CommunityPage from '@/components/CommunityPage';
 import RegisterPage from '@/components/RegisterPage';
 import { useAuth } from '@/lib/auth';
 
-type Tab = 'about' | 'care' | 'community' | 'register';
+type Tab = 'about' | 'care' | 'community' | 'adoption' | 'register';
 const tabs: { id: Tab; label: string }[] = [
   { id: 'about', label: '함께하개' },
   { id: 'care', label: '돌봐주개' },
   { id: 'community', label: '소통하개' },
+  { id: 'adoption', label: '입양하개' },
   { id: 'register', label: '등록하개' },
 ];
 
@@ -53,6 +55,7 @@ export default function App() {
         {activeTab === 'about' && <AboutPage onNavigate={navigate} />}
         {activeTab === 'care' && <CarePage onOpenBoard={(part, post, write) => navigate('community', part, post, write)} />}
         {activeTab === 'community' && <CommunityPage key={JSON.stringify(boardTarget)} initialPart={boardTarget.part} initialPost={boardTarget.post} startWriting={boardTarget.write} onRegister={() => navigate('register')} />}
+        {activeTab === 'adoption' && <AdoptionPage />}
         {activeTab === 'register' && <RegisterPage />}
       </div>
       <footer className="site-footer">

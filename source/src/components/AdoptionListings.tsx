@@ -69,7 +69,7 @@ export default function AdoptionListings({ guide }: { guide: ReactNode }) {
     }).finally(() => window.clearTimeout(timeout));
 
     const recent = saved.current.get(query.region);
-    if (recent?.dogs.length) {
+    if (recent && Date.now() - recent.at < 86400000 && recent.dogs.length) {
       setDogs(recent.dogs);
       setSnapshotAt(recent.at);
     } else {
@@ -77,7 +77,7 @@ export default function AdoptionListings({ guide }: { guide: ReactNode }) {
         .then((response) => response.ok ? response.json() : null)
         .then((snapshots: Record<string, { at: number; dogs: DogNotice[] }> | null) => {
           const snapshot = snapshots?.[query.region];
-          if (!mounted || !snapshot?.dogs.length || saved.current.has(query.region)) return;
+          if (!mounted || !snapshot || saved.current.has(query.region) || Date.now() - snapshot.at > 86400000) return;
           setDogs(snapshot.dogs);
           setSnapshotAt(snapshot.at);
         }).catch(() => {});
@@ -130,11 +130,7 @@ export default function AdoptionListings({ guide }: { guide: ReactNode }) {
       {snapshotAt && <p className="notice-status text-sm" role="status">
         {new Date(snapshotAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', dateStyle: 'medium', timeStyle: 'short' })} 확인한 공고
         {failed ? ' · 최신 조회에 실패했어요. ' : ' · 최신 공고를 확인 중이에요.'}
-        {failed && <>
-          <button type="button" className="underline" onClick={() => lookup(query.region)}>다시 조회</button>
-          <span> · </span>
-          <a className="underline" href={source + '/animals'} target="_blank" rel="noreferrer">원본 공고 보기</a>
-        </>}
+        {failed && <button type="button" className="underline" onClick={() => lookup(query.region)}>다시 조회</button>}
       </p>}
       {failed && !snapshotAt ? <div className="project-card notice-status" role="status">
         <p>공고를 불러오지 못했어요. 다시 조회하거나 원본 사이트에서 확인해 주세요.</p>
@@ -148,12 +144,18 @@ export default function AdoptionListings({ guide }: { guide: ReactNode }) {
         </ul> : <p className="project-card notice-status" role="status">이 지역에서 조회된 보호견 공고가 없어요. 다른 지역을 선택해 보세요.</p>}
       <p className="text-sm"><a className="underline" href={source + '/animals'} target="_blank" rel="noreferrer">공고 출처 RescueAnimal</a></p>
     </section>
-    <p className="home-disclaimer">건강 정보는 참고용이며, 정확한 진단은 수의사에게 문의하세요.</p>
     <section className="adoption-links" aria-label="입양 준비 가이드 및 보호센터 문의">
       {guide}
-      <article className="project-card">
+      <article id="shelter-contact" className="project-card">
         <h3>보호센터에 문의하기</h3>
-        <p>공고 상세의 연락처나 보호센터 목록에서 입양 가능 여부, 방문 일정, 필요한 서류를 확인하세요.</p>
+        <p>관심 있는 보호견의 공고번호를 적어두고 공고 상세의 연락처로 문의하세요. 센터마다 절차가 달라요.</p>
+        <ul className="adoption-contact-questions">
+          <li>지금 입양 신청이 가능한가요?</li>
+          <li>건강 기록과 평소 생활 습관을 알려주실 수 있나요?</li>
+          <li>가족이나 기존 반려동물과 만남을 진행할 수 있나요?</li>
+          <li>방문 예약, 신청 서류, 교육은 어떻게 진행되나요?</li>
+          <li>인계 날짜와 입양 후 문의 방법은 어떻게 되나요?</li>
+        </ul>
         <a className="project-action" href={source + '/shelters'} target="_blank" rel="noreferrer">동물보호센터 찾기</a>
       </article>
     </section>

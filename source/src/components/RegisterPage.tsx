@@ -8,7 +8,7 @@ const referralOptions = [
 ];
 
 export default function RegisterPage() {
-  const { user, loading, signIn, signUp, signOut, nickname, setNickname } = useAuth();
+  const { user, loading, signIn, signUp, signOut, nickname } = useAuth();
   const [mode, setMode] = useState<'login' | 'signup'>('login');
 
   const [email, setEmail] = useState('');
@@ -20,9 +20,6 @@ export default function RegisterPage() {
   const [nickCheck, setNickCheck] = useState<{ candidate: string; available: boolean; message: string }>();
   const [checkingSignupNick, setCheckingSignupNick] = useState(false);
   const [signupNotice, setSignupNotice] = useState('');
-  const [profileNick, setProfileNick] = useState<string>();
-  const [profileError, setProfileError] = useState<string | null>(null);
-  const [savingProfile, setSavingProfile] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -47,8 +44,7 @@ export default function RegisterPage() {
     const { data, error } = await supabase.rpc('signup_nickname_available', { candidate });
     setNickCheck({
       candidate, available: !error && data === true,
-      message: error?.code === 'PGRST202' ? '로그인 후 닉네임 중복을 확인하고 저장할 수 있어요.'
-        : error ? '닉네임 확인 서비스에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.'
+      message: error ? '닉네임 확인 서비스에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.'
         : data === true ? '사용할 수 있는 닉네임이에요.' : '이미 사용 중인 닉네임이에요.',
     });
     setCheckingSignupNick(false);
@@ -56,40 +52,24 @@ export default function RegisterPage() {
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
-    if (submitting || !email.trim() || !password.trim()) return;
+    if (!email.trim() || !password.trim()) return;
     setSubmitting(true);
     setError(null);
-    setSignupNotice('');
-    try {
-      const result = await signUp(email.trim(), password, isOwner, signupNick, referral);
-      if (result.error) {
-        setError(result.error);
-        return;
-      }
+    const { error } = await signUp(email.trim(), password, isOwner, signupNick, referral);
+    if (error) {
+      setError(error);
+    } else {
+      setError(null);
       setMode('login');
+      setEmail('');
       setPassword('');
       setIsOwner(null);
       setSignupNick('');
       setReferral('');
       setNickCheck(undefined);
-      setSignupNotice('이메일 인증이 필요하면 가입에 사용한 주소로 온 확인 메일을 열어 주세요. 이미 인증했다면 그 이메일로 로그인하세요.');
-    } catch {
-      setError('가입 서비스에 연결할 수 없어요. 연결을 확인하고 다시 시도해 주세요.');
-    } finally {
-      setSubmitting(false);
+      setSignupNotice('가입 요청을 보냈어요. 이메일 인증이 필요한 경우 메일함을 확인해 주세요.');
     }
-  }
-
-  async function saveProfileNickname(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    setSavingProfile(true);
-    try {
-      const result = await setNickname(String(form.get('nickname') ?? ''));
-      setProfileError(result.error);
-    } finally {
-      setSavingProfile(false);
-    }
+    setSubmitting(false);
   }
 
   if (loading) {
@@ -128,19 +108,7 @@ export default function RegisterPage() {
                 <UserCircle className="w-4 h-4 text-emerald-500" />
                 <span className="text-xs font-semibold text-emerald-700">닉네임</span>
               </div>
-              {nickname ? <p className="text-sm text-gray-800 font-bold">{nickname}</p> : (
-                <form onSubmit={saveProfileNickname}>
-                  <label htmlFor="profile-nickname" className="text-sm">닉네임을 저장하면 게시판에서 사용할 수 있어요.</label>
-                  <div className="mt-2 flex gap-2">
-                    <input id="profile-nickname" name="nickname" className="project-control" autoComplete="nickname"
-                      required minLength={2} maxLength={20}
-                      value={profileNick ?? user.user_metadata?.signup_nickname ?? ''}
-                      onChange={(event) => setProfileNick(event.target.value)} />
-                    <button type="submit" className="project-action shrink-0" disabled={savingProfile}>저장</button>
-                  </div>
-                  {profileError && <p role="alert" className="mt-1 text-sm text-rose-700">{profileError}</p>}
-                </form>
-              )}
+              <p className="text-sm text-gray-800 font-bold">{nickname ?? '함께하개 회원'}</p>
             </div>
 
             <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
@@ -222,7 +190,7 @@ export default function RegisterPage() {
               </div>
 
               {error && (
-                <div role="alert" className="bg-rose-50 text-rose-600 text-sm rounded-xl p-3 border border-rose-100">{error}</div>
+                <div className="bg-rose-50 text-rose-600 text-sm rounded-xl p-3 border border-rose-100">{error}</div>
               )}
 
               <button
@@ -341,7 +309,7 @@ export default function RegisterPage() {
               </fieldset>
 
               {error && (
-                <div role="alert" className="bg-rose-50 text-rose-600 text-sm rounded-xl p-3 border border-rose-100">{error}</div>
+                <div className="bg-rose-50 text-rose-600 text-sm rounded-xl p-3 border border-rose-100">{error}</div>
               )}
 
               <button

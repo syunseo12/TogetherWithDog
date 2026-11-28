@@ -457,3 +457,23 @@ button:focus-visible, a:focus-visible, [tabindex="0"]:focus-visible { outline: 3
 @media (prefers-reduced-motion: reduce) {
   .is-shaking .parade-hop, .notice-card.is-tilted { animation: none; }
 }
+
+.adoption-page { padding-top: clamp(22px, 5vw, 52px); }
+.adoption-intro { padding: clamp(20px, 4vw, 36px); border: 1px solid #b9d0b3; border-radius: 22px; background: #e2eddb; color: #214533; }
+.adoption-intro h1 { font-weight: 900; font-size: clamp(2rem, 5vw, 3.25rem); line-height: 1.15; }
+.adoption-intro p { margin: 12px 0 18px; }
+.adoption-intro nav { display: flex; gap: 8px; flex-wrap: wrap; }
+.adoption-page .adoption-links { margin-top: 30px; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); align-items: start; }
+.adoption-page :is(#adoption, #shelter-contact) { scroll-margin-top: 145px; }
+.adoption-progress { display: block; width: 100%; margin-block: 8px; accent-color: #36644d; }
+.adoption-check-group { margin-top: 18px; padding: 4px 0 0; border-top: 1px solid var(--line); }
+.adoption-check-group legend { font-weight: 800; padding-right: 8px; }
+.adoption-contact-questions { padding-left: 1.25rem; margin: 14px 0; list-style: disc; }
+.adoption-contact-questions li + li { margin-top: 7px; }
+@media (max-width: 760px) {
+  .site-header .header-inner { flex-wrap: wrap; row-gap: 0; }
+  .site-header .bookmark-nav { width: 100%; }
+  .site-header .bookmark-nav .bookmark { flex: 1; min-width: 0; width: auto; }
+  .adoption-page .adoption-links { grid-template-columns: 1fr; }
+  .adoption-page :is(#adoption-listings, #adoption, #shelter-contact) { scroll-margin-top: 155px; }
+}
